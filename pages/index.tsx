@@ -1,11 +1,11 @@
 import Head from 'next/head'
-import Image from 'next/image'
 import { InboxOutlined } from '@ant-design/icons';
-import { Col, Collapse, Form, Radio, RadioChangeEvent, Row, Select, Statistic, UploadProps } from 'antd';
+import { Col, Collapse, Form, Radio, RadioChangeEvent, Row, Select, Statistic, UploadFile, UploadProps } from 'antd';
 import { message, Upload } from 'antd';
 import { useState } from 'react';
 import ExifReader from 'exifreader';
 import styles from '../styles/home.module.css'
+import { RcFile } from 'antd/es/upload';
 
 const { Dragger } = Upload;
 const { Panel } = Collapse;
@@ -71,6 +71,29 @@ export default function Home() {
       } else if (status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
       }
+    },
+    customRequest: ({ file, onSuccess }) => {
+      onSuccess?.({})
+      return {
+        abort() {
+          console.log('upload progress is aborted.');
+        },
+      };
+    },
+    onPreview: async (file: UploadFile) => {
+      let src = file.url as string;
+      if (!src) {
+        src = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file.originFileObj as RcFile);
+          reader.onload = () => resolve(reader.result as string);
+        });
+      }
+      const image = document.createElement("img");
+      image.src = src;
+      image.style.width = '100%'
+      const imgWindow = window.open(src);
+      imgWindow?.document.write(image.outerHTML);
     },
     onDrop(e) {
       console.log('Dropped files', e.dataTransfer.files);
