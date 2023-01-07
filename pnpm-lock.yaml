@@ -12,7 +12,7 @@ specifiers:
   date-fns: ^2.29.3
   eslint: 8.31.0
   eslint-config-next: 13.1.1
-  exif-parser: ^0.1.12
+  exifreader: ^4.9.1
   formidable: ^2.1.1
   mime: ^3.0.0
   next: 13.1.1
@@ -30,7 +30,7 @@ dependencies:
   date-fns: 2.29.3
   eslint: 8.31.0
   eslint-config-next: 13.1.1_iukboom6ndih5an6iafl45j2fe
-  exif-parser: 0.1.12
+  exifreader: 4.9.1
   formidable: 2.1.1
   mime: 3.0.0
   next: 13.1.1_biqbaboplfbrettd7655fr4n2y
@@ -480,6 +480,13 @@ packages:
       '@typescript-eslint/types': 5.48.0
       eslint-visitor-keys: 3.3.0
     dev: false
+
+  /@xmldom/xmldom/0.7.9:
+    resolution: {integrity: sha512-yceMpm/xd4W2a85iqZyO09gTnHvXF6pyiWjD2jcOJs7hRoZtNNOO1eJlhHj1ixA+xip2hOyGn+LgcvLCMo5zXA==}
+    engines: {node: '>=10.0.0'}
+    requiresBuild: true
+    dev: false
+    optional: true
 
   /acorn-jsx/5.3.2_acorn@8.8.1:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -1209,8 +1216,11 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
-  /exif-parser/0.1.12:
-    resolution: {integrity: sha512-c2bQfLNbMzLPmzQuOr8fy0csy84WmwnER81W88DzTp9CYNPJ6yzOj2EZAh9pywYpqHnshVLHQJ8WzldAyfY+Iw==}
+  /exifreader/4.9.1:
+    resolution: {integrity: sha512-lcVG6VuSkPVHdmM6HybcVWaE8iO4Qq68qFPCRM6U3kz0JODqw4mjMySJ1nZSHfAnrfsIYGfN9A2vh96b3LAF1g==}
+    requiresBuild: true
+    optionalDependencies:
+      '@xmldom/xmldom': 0.7.9
     dev: false
 
   /fast-deep-equal/3.1.3:

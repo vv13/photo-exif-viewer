@@ -4,26 +4,41 @@ import { InboxOutlined } from '@ant-design/icons';
 import { Col, Collapse, Form, Radio, RadioChangeEvent, Row, Select, Statistic, UploadProps } from 'antd';
 import { message, Upload } from 'antd';
 import { useState } from 'react';
+import ExifReader from 'exifreader';
 import styles from '../styles/home.module.css'
 
 const { Dragger } = Upload;
 const { Panel } = Collapse;
 
+const ExifInfo = {
+  FocalLength: 'FocalLength',
+  LensModel: 'LensModel',
+  ISOSpeedRatings: 'ISOSpeedRatings',
+  ExposureTime: 'ExposureTime',
+  FNumber: 'FNumber'
+}
+
+const ExifInfoTitle = {
+  [ExifInfo.FocalLength]: '焦距',
+  [ExifInfo.LensModel]: '镜头',
+  [ExifInfo.ISOSpeedRatings]: 'ISO',
+  [ExifInfo.ExposureTime]: '曝光时长',
+  [ExifInfo.FNumber]: '光圈',
+}
+
 const options = [
-  { value: 'FocalLength', label: '焦距' },
-  { value: 'ExposureTime', label: '曝光时间' },
-  { value: 'ISO', label: '感光度' },
-  { value: 'LensModel', label: '镜头', }
+  { value: ExifInfo.FocalLength, label: ExifInfoTitle[ExifInfo.FocalLength] },
+  { value: ExifInfo.ExposureTime, label: ExifInfoTitle[ExifInfo.ExposureTime] },
+  { value: ExifInfo.ISOSpeedRatings, label: ExifInfoTitle[ExifInfo.ISOSpeedRatings] },
+  { value: ExifInfo.LensModel, label: ExifInfoTitle[ExifInfo.LensModel], },
+  { value: ExifInfo.FNumber, label: ExifInfoTitle[ExifInfo.FNumber], }
 ];
 
 const spanMap: { [key: string]: any } = {
   LensModel: 24
 }
 const formatParamValue = (name: string, value: any) => {
-  if (name === 'ExposureTime') {
-    return value < 1 ? `1/${1 / value}` : value
-  }
-  return value
+  return value?.description
 }
 
 const formatOptionsLabel = (value: string) => options.find(item => item.value === value)?.label || ''
@@ -32,7 +47,7 @@ const formatOptionsLabel = (value: string) => options.find(item => item.value ==
 export default function Home() {
   const [exifInfo, setExifInfo] = useState<any>({})
   const [arrangement, setArrangement] = useState('horizontal');
-  const [parameters, setParameters] = useState(['FocalLength', 'ExposureTime', 'ISO', 'LensModel']);
+  const [parameters, setParameters] = useState(Object.keys(ExifInfo));
 
   const onChangeArrangement = (e: RadioChangeEvent) => {
     setArrangement(e.target.value);
@@ -42,19 +57,16 @@ export default function Home() {
     name: 'file',
     multiple: false,
     maxCount: 1,
-    action: '/api/upload',
-    onChange(info) {
+    async onChange(info) {
       // removing file
       if (info.fileList.length === 0) {
         setExifInfo({})
         return
       }
       const { status } = info.file;
-      if (status !== 'uploading') {
-        console.log(info.file, info.fileList);
-      }
       if (status === 'done') {
-        setExifInfo(info.file.response?.data?.exifInfo?.tags || {})
+        const tag = await ExifReader.load(info.file.originFileObj as any)
+        setExifInfo(tag || {})
         message.success(`${info.file.name} file uploaded successfully.`);
       } else if (status === 'error') {
         message.error(`${info.file.name} file upload failed.`);
@@ -82,7 +94,7 @@ export default function Home() {
       </Head>
       <main className='container'>
         <Row gutter={24}>
-          <Col span={8} >
+          <Col offset={4} span={8} >
             <div>
               <Dragger {...props} className={styles.uploader} listType="picture">
                 <p className="ant-upload-drag-icon">
@@ -106,15 +118,6 @@ export default function Home() {
                 onChange={value => setParameters(value)}
               />
             </Form.Item>
-            <Form.Item label="文字排列方式">
-              <Radio.Group onChange={onChangeArrangement} value={arrangement}>
-                <Radio value={'horizontal'}>横向</Radio>
-                <Radio value={'vertical'}>纵向</Radio>
-              </Radio.Group>
-            </Form.Item>
-          </Col >
-
-          <Col span={8} >
             {
               Object.keys(exifInfo).length === 0 ? '暂无信息，请上传图片' : <div>
                 <Row>
@@ -122,6 +125,12 @@ export default function Home() {
                 </Row>
                 <Collapse defaultActiveKey={['1']} ghost>
                   <Panel header="文本信息" key="1">
+                    <Form.Item label="文字排列方式">
+                      <Radio.Group onChange={onChangeArrangement} value={arrangement}>
+                        <Radio value={'horizontal'}>横向</Radio>
+                        <Radio value={'vertical'}>纵向</Radio>
+                      </Radio.Group>
+                    </Form.Item>
                     {textInfo}
                   </Panel>
                 </Collapse>

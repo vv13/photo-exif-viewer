@@ -18,7 +18,7 @@
     "date-fns": "^2.29.3",
     "eslint": "8.31.0",
     "eslint-config-next": "13.1.1",
-    "exif-parser": "^0.1.12",
+    "exifreader": "^4.9.1",
     "formidable": "^2.1.1",
     "mime": "^3.0.0",
     "next": "13.1.1",
