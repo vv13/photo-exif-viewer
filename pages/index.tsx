@@ -2,10 +2,12 @@ import Head from 'next/head'
 import { InboxOutlined } from '@ant-design/icons';
 import { Col, Collapse, Form, Radio, RadioChangeEvent, Row, Select, Statistic, UploadFile, UploadProps } from 'antd';
 import { message, Upload } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ExifReader from 'exifreader';
 import styles from '../styles/home.module.css'
 import { RcFile } from 'antd/es/upload';
+import { useRouter } from 'next/router';
+import convertUrlToImageData from '../utils';
 
 const { Dragger } = Upload;
 const { Panel } = Collapse;
@@ -45,6 +47,9 @@ const formatOptionsLabel = (value: string) => options.find(item => item.value ==
 
 
 export default function Home() {
+  const router = useRouter()
+  const { img_url } = router.query
+
   const [exifInfo, setExifInfo] = useState<any>({})
   const [arrangement, setArrangement] = useState('horizontal');
   const [parameters, setParameters] = useState(Object.keys(ExifInfo));
@@ -52,6 +57,16 @@ export default function Home() {
   const onChangeArrangement = (e: RadioChangeEvent) => {
     setArrangement(e.target.value);
   };
+
+  useEffect(() => {
+    if (!img_url) return
+    convertUrlToImageData(img_url as string)
+      .then(ExifReader.load)
+      .then(setExifInfo)
+      .catch(() => {
+        message.error('Something went wrong.');
+      })
+  }, [img_url])
 
   const props: UploadProps = {
     name: 'file',
@@ -125,16 +140,18 @@ export default function Home() {
         <Row gutter={24}>
           <Col offset={4} span={8} >
             <div>
-              <Dragger {...props} className={styles.uploader} listType="picture">
-                <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
-                </p>
-                <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                <p className="ant-upload-hint">
-                  Support for a single or bulk upload. Strictly prohibit from uploading company data or other
-                  band files
-                </p>
-              </Dragger>
+              {img_url ? <img src={img_url} alt="img url" style={{ width: '100%' }} /> : (
+                <Dragger {...props} className={styles.uploader} listType="picture">
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                  <p className="ant-upload-hint">
+                    Support for a single or bulk upload. Strictly prohibit from uploading company data or other
+                    band files
+                  </p>
+                </Dragger>
+              )}
             </div>
           </Col>
           <Col span={8} >
