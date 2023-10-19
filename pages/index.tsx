@@ -140,10 +140,10 @@ export default function Home() {
         <Row gutter={24}>
           <Col offset={4} span={8} >
             <div>
-              {img_url ? <img src={img_url} alt="img url" style={{ width: '100%' }} /> : (
+              {img_url ? <img src={img_url as string} alt="img url" style={{ width: '100%' }} /> : (
                 <Dragger {...props} className={styles.uploader} listType="picture">
                   <p className="ant-upload-drag-icon">
-                    <InboxOutlined />
+                    <InboxOutlined alt='' rev={undefined}/>
                   </p>
                   <p className="ant-upload-text">Click or drag file to this area to upload</p>
                   <p className="ant-upload-hint">
